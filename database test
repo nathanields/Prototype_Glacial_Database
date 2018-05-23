@@ -1,0 +1,13 @@
+//test database building for prooject using 5 min weather data csv
+//works to build table from cleaned up csv with actual comma seperation- needs python function to actually clean up files
+
+CREATEdb testDB;
+>psql testDB
+testDB=> create table weather5Min (
+Time varChar(80),
+Record int,
+WindSpeed real,
+WindDirection real 
+) ;
+\COPY weather5min FROM '/home/glaciology1/ndsouza/testDATA/Julysept20145MIN.csv' DELIMITER ',' CSV;
+
