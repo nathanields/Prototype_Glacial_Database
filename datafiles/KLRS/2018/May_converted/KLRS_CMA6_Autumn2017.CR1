@@ -1,0 +1,141 @@
+'CR1000 program for Kluane Lake Research Station AWS
+'Created by Short Cut (2.5)
+'Modified 8 Aug 2013 to include CMA6 by Gwenn Flowers
+
+'Declare Variables and Units
+Dim WindCo_12     'temporary variable for NR-LITE wind correction
+Public Batt_Volt
+Public Panel_Temp
+Public WS_ms
+Public WindDir
+Public NR_Wm2
+Public AirTC
+Public RH
+Public DT
+Public BP
+Public SWin_Wm2
+Public SWout_Wm2
+Public Rain_mm
+
+Units Batt_Volt=Volts
+Units Panel_Temp=Deg C
+Units WS_ms=meters/second
+Units WindDir=Degrees
+Units NR_Wm2=W/m²
+Units AirTC=Deg C
+Units RH=%
+Units DT=m
+Units BP=hPa(mb)
+Units SWin_Wm2=W/m²
+Units SWout_Wm2=W/m²
+Units Rain_mm=mm
+
+'Define Data Tables
+DataTable(FiveMin,True,-1)
+	DataInterval(0,5,Min,10)
+	CardOut(1,-1)
+	WindVector (1,WS_ms,WindDir,FP2,False,0,0,0)
+	FieldNames("WS_ms_S_WVT,WindDir_D1_WVT,WindDir_SD1_WVT")
+	Maximum (1,Ws_ms,FP2,False,False)
+	Average(1,AirTC,FP2,False)
+	Average(1,NR_Wm2,FP2,False)
+	Average(1,RH,FP2,False)
+	Average(1,SWin_Wm2,FP2,False)
+	Average(1,SWout_Wm2,FP2,False)
+EndTable
+
+DataTable (HalfHour,True,-1)
+	DataInterval (0,30,Min,10)
+	CardOut (1,-1)
+	Sample(1,DT,FP2)
+	Sample(1,BP,FP2)
+	Totalize(1,Rain_mm,FP2,False)
+EndTable
+
+DataTable (Health,True,-1)
+	DataInterval(0,1440,Min,10)
+	CardOut (1,-1)
+	Maximum(1,Batt_Volt,FP2,False,False)
+	Minimum(1,Batt_Volt,FP2,False,True)
+	Average(1,Batt_Volt,FP2,False)
+	Maximum (1,Panel_Temp,FP2,False,True)
+	Minimum (1,Panel_Temp,FP2,False,False)
+	Average (1,Panel_Temp,FP2,False)
+EndTable
+	
+'Main Program
+BeginProg
+	Scan(30,Sec,1,0)
+		'Datalogger Battery Voltage measurement Batt_Volt:
+		Battery(Batt_Volt)
+		
+		'Datalogger Panel Temperature measurement Panel_Temp:
+		PanelTemp (Panel_Temp,250)
+		
+		'05103 Wind Speed & Direction Sensor measurements WS_ms and WindDir:
+		'for correct wind direction the junction box should be pointed south (eyeball with compass).
+		'WIRING: P1=RED, SINGLE4=GREEN, EX1=BLUE, CLEAR&BLACK=G, WHITE=GROUND
+		PulseCount(WS_ms,1,1,1,1,0.098,0)
+		BrHalf(WindDir,1,mV2500,4,1,1,2500,True,0,_60Hz,355,0)
+		If WindDir>=360 Then WindDir=0
+		
+		'NR-LITE Net Radiometer (dynamic wind speed correction) measurement NR_Wm2 and CNR_Wm2:
+		'multiplier = 1000/sensitivity = 1000/13.3 = 75.1880 W/m^2 (SN=062143)
+		'WIRING: CLEAR=G, WHITE=3H, GREEN=3L, JUMPER JOINING 3L TO GROUND
+		VoltDiff(NR_Wm2,1,mv25,3,True,0,_60Hz,75.1880,0)  
+		
+		'HMP45C212 NEW Temp CODE
+		'WIRING: SINGLE1=TEMP=ORANGE, EX2=BLACK, SINGLE2=RH=GREEN, RED=12V, YELLOW=C1, PURPLE&CLEAR=G, WHITE=GROUND
+		BrHalf (AirTC,1,mV2500,1,2,1,2500,True ,0,_60Hz,178.85,-72.789)
+		PortSet(1,1)    
+		'HMP45C212 RH code
+		Delay (0,150,mSec)
+		VoltSE(RH,1,mV2500,2,0,0,_60Hz,0.1,0)
+		PortSet(1,0)
+		If RH>100 And RH<108 Then RH=100
+		
+		'ADD CONDITIONAL STATEMENT ON SR50 TO MEASURE ONCE EVERY 30 MINUTES
+		If TimeIntoInterval (0,30,Min) Then
+			'SR50 Sonic Ranging Sensor (SDI-12 Output) measurements DT, TCDT, and DBTCDT:
+			'WIRING: C7=GREEN, RED=12V, BLACK&WHITE&CLEAR=G
+			SDI12Recorder(DT,7,"0","M!",1.0,0)
+			'TCDT=DT*SQR((AirTC+273.15)/273.15)
+		Endif
+    
+    'to measure pressure every hour (or 30min or whatever) 61205V connects to SW_12V
+    'and one minute before before measurement time, turn sensor on
+    If TimeIntoInterval (29,30,Min) Then
+    	SW12 (1)
+    EndIf
+    If TimeIntoInterval (0,30,Min) Then 
+    	'61205V Barometric Pressure Sensor measurement BP: 
+			'conversion from mV to hPa is hPa = (mV * 0.2) + 600
+			'WIRING: RED=SW12V, WHITE=5H, GREEN=5L, BLACK&CLEAR=G
+			VoltDiff(BP,1,mv2500,5,True,0,_60Hz,0.2,600)
+			SW12 (0)
+		  'to calculate the sea-level corrected pressure use additional offset P
+		  'where P = 1013.25[1-(1-Elevation/44307.69231)^5.253283]
+		  'for kluane lake elev = 762m and P = 228.126665
+		  'met 1 off ice at elev = 2280m approx.
+			'BPSC = BP + 1013.25*(1-(1-2280/44307.69231)^5.253283)
+		EndIf	
+		
+		'CMA 6 Albedometer (S/N 080009)
+		'WIRING: RED=6H, BLUE=6L, BLACK=G, GREEN=7H, YELLOW=7L
+		'multiplier = 1/S where S = sensitivity, 
+		'1000/14.88 = 67.204 (upper), 1000/16.58 = 60.314 (lower)
+		VoltDiff(SWin_Wm2,1,6,6,True,0,_60Hz,67.204,0)
+		If SWin_Wm2<0 Then Swin_Wm2=0
+		VoltDiff(SWout_Wm2,1,6,7,True,0,_60Hz,60.314,0)
+		If SWout_Wm2<0 Then Swout_Wm2=0
+		
+		'TE525M Tipping Bucket Rain Gauge measurement Rain_mm:
+	  'WIRING: P2=BLACK, CLEAR&WHITE=G
+		PulseCount(Rain_mm,1,2,2,0,0.1,0)
+		
+		'Call Data Tables and Store Data
+		CallTable(FiveMin)
+		CallTable(HalfHour)
+		CallTable(Health)
+	NextScan
+EndProg

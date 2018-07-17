@@ -1,0 +1,27 @@
+This file accompanies the data collected by an automatic weather station (AWS) set up at the Kluane Lake Research Station in Yukon, Canada. The AWS was set up by the Glaciology Group at Simon Fraser University, led by Gwenn Flowers.
+
+The AWS data logger is a Campbell Scientific CR1000, powered by a 7Ah PS100 power supply and 10W solar panel. The instruments on the station are manufactured by various companies, as below:
+
+-Wind monitor (RM Young 05103-10)
+-Temperature and relative humidity probe (HMP45C212 with Vaisala humidity sensor and YSI 44212 thermistor)
+-Albedometer (Kipp and Zonen CMA6)
+-Net radiometer (Kipp and Zonen NR-Lite)
+-Acoustic depth sounder (SR50 Sonic Ranger)
+-Rain gauge (Texas Instruments TE525 Tipping bucket)
+-Barometric pressure sensor (RM Young 61205V)
+
+
+Data organization
+
+In the main directory, there are subdirectories for individual years, and within these, subdirectories for individual times when data were offloaded. It may be necessary to concatenate data from multiple files and directories, depending on the intended use. In each of the lowest subdirectories you will find three types of files: .CR1, the program used to collect the data in that same folder (file format can likely only be opened and read by Campbell Scientific proprietary software 'Loggernet') and .csv data files in comma separated file format.
+
+The logger program we run returns three output files. *FiveMin* contains the data that are recorded every five minutes, *HalfHour* the data recorded every half hour and *Health* the data recorded daily relating to the health of the AWS such as battery voltage and data logger temperature.
+
+*FiveMin* files contain in each row the following entries:
+Date; Record number; wind speed (averaged over 5 min); wind direction; standard deviation of the wind direction; maximum wind speed; Air temperature; Net radiation (incoming minus outgoing from NR-LITE); Relative humidity; Incoming short wave radiation (from CMA6); outgoing shortwave radiation (from CMA6). Units are shown in the line under the output labels. 'Avg' stands for the 5-min average of the measurement.
+
+*HalfHour* files contain in each row the following entries:
+Date; Record number; Distance-to-surface (SR50); Barometric pressure; Rain (total over a 30 minute period). Units are shown in the line under the output labels. The SR50 (distance-to-ground) and BP sensor make only one measurement every half hour.
+
+
+Please note that no quality-control of any kind has been performed on the data. Hard copy records of AWS installation and maintenance exist in field books at Simon Fraser University. Electronic copies are provided in "Metadata". If you use the AWS data in a presentation or publication, please cite as: Unpublished data, Simon Fraser University Glaciology Group. If you have any questions about the instruments or the data, please contact: Gwenn Flowers: gflowers@sfu.ca (Group leader).

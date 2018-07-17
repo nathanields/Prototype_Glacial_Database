@@ -1,0 +1,149 @@
+'CR1000
+'Created by Short Cut (2.5) & Brett Wheler
+'please see comments below regarding specific lines/sections of code
+'right clicking on a command opens a parameter box describing the necessary parameters and allowing editing
+'when in the parameter box you can click help to see a description of the command and parameters
+'Help index is also available on the right hand side of this window
+'choosing a command from the Help index and clicking Insert inserts the command and opens the parameter box
+
+'Declare Variables and Units
+Dim WindCo_12     'I think this is a temporary variable used for wind correction for NR-LITE
+Public Batt_Volt
+Public Panel_Temp
+Public WS_ms
+Public WindDir
+Public NR_Wm2
+'Public CNR_Wm2
+Public AirTC
+Public RH
+Public DT
+'Public TCDT
+'Public DBTCDT
+Public BP
+'Public BPSC
+'Public Rain_mm
+
+Units Batt_Volt=Volts
+Units Panel_Temp=Deg C
+Units WS_ms=meters/second
+Units WindDir=Degrees
+Units NR_Wm2=W/m²
+'Units CNR_Wm2=Watts/meter²
+Units AirTC=Deg C
+Units RH=%
+Units DT=m
+Units BP=hPa(mb)
+'Units BPSC=hPa(mb)
+'Units Rain_mm=mm
+
+'Define Data Tables
+DataTable(FiveMin,True,-1)
+	DataInterval(0,5,Min,10)
+	CardOut(1,-1)
+	WindVector (1,WS_ms,WindDir,FP2,False,0,0,0)
+	FieldNames("WS_ms_S_WVT,WindDir_D1_WVT,WindDir_SD1_WVT")
+	Maximum (1,Ws_ms,FP2,False,False)
+	'Sample (1,Ws_ms,FP2)
+	Average(1,AirTC,FP2,False)
+	'Sample (1,AirTC,FP2)
+	Average(1,NR_Wm2,FP2,False)
+	'Average(1,CNR_Wm2,FP2,False)
+	Average(1,RH,FP2,False)
+	'Sample(1,RH,FP2)
+EndTable
+
+DataTable (HalfHour,True,-1)
+	DataInterval (0,30,Min,10)
+	CardOut (0,-1)
+	Sample(1,DT,FP2)
+	'Sample(1,TCDT,FP2)
+	'Sample(1,DBTCDT,FP2)
+	Sample(1,BP,FP2)
+	'Sample(1,BPSC,FP2)
+	'Totalize(1,Rain_mm,FP2,False)
+EndTable
+
+DataTable (Health,True,-1)
+	DataInterval(0,1440,Min,10)
+	CardOut (0,-1)
+	Maximum(1,Batt_Volt,FP2,False,False)
+	Minimum(1,Batt_Volt,FP2,False,True)
+	Average(1,Batt_Volt,FP2,False)
+	Maximum (1,Panel_Temp,FP2,False,True)
+	Minimum (1,Panel_Temp,FP2,False,False)
+	Average (1,Panel_Temp,FP2,False)
+EndTable
+	
+'Main Program
+BeginProg
+	Scan(30,Sec,1,0)
+		'Datalogger Battery Voltage measurement Batt_Volt:
+		Battery(Batt_Volt)
+		
+		'Datalogger Panel Temperature measurement Panel_Temp:
+		PanelTemp (Panel_Temp,250)
+		
+		'05103 Wind Speed & Direction Sensor measurements WS_ms and WindDir:
+		'for correct wind direction the junction box should be pointed south (eyeball with compass).
+		'WIRING: P1=RED, SINGLE4=GREEN, EX1=BLUE, CLEAR&BLACK=G, WHITE=GROUND
+		PulseCount(WS_ms,1,1,1,1,0.098,0)
+		BrHalf(WindDir,1,mV2500,4,1,1,2500,True,0,_60Hz,355,0)
+		If WindDir>=360 Then WindDir=0
+		
+		'NR-LITE Net Radiometer (dynamic wind speed correction) measurement NR_Wm2 and CNR_Wm2:
+		'multiplier = 1000/sensitivity = 1000/13.3 = 75.1880 W/m^2 (SN=062143)
+		'WIRING: CLEAR=G, WHITE=3H, GREEN=3L, JUMPER JOINING 3L TO GROUND
+		
+		VoltDiff(NR_Wm2,1,mv25,3,True,0,_60Hz,75.1880,0)  
+'		If WS_ms>=5 Then
+'			CNR_Wm2=NR_Wm2*(1+0.021286*(WS_ms-5))
+'		Else
+'			CNR_Wm2=NR_Wm2
+'		EndIf
+		
+		'HMP45C212 NEW Temp CODE
+		'WIRING: SINGLE1=TEMP=ORANGE, EX2=BLACK, SINGLE2=RH=GREEN, RED=12V, YELLOW=C1, PURPLE&CLEAR=G, WHITE=GROUND
+		BrHalf (AirTC,1,mV2500,1,2,1,2500,True ,0,_60Hz,178.85,-72.789)
+		PortSet(1,1)    
+		'HMP45C212 RH code
+		Delay (0,150,mSec)
+		VoltSE(RH,1,mV2500,2,0,0,_60Hz,0.1,0)
+		PortSet(1,0)
+		If RH>100 And RH<108 Then RH=100
+		
+		'ADD CONDITIONAL STATEMENT ON SR50 TO MEASURE ONCE EVERY 30 MINUTES
+		If TimeIntoInterval (0,30,Min) Then
+			'SR50 Sonic Ranging Sensor (SDI-12 Output) measurements DT, TCDT, and DBTCDT:
+			'WIRING: C7=GREEN, RED=12V, BLACK&WHITE&CLEAR=G
+			SDI12Recorder(DT,7,"0","M!",1.0,0)
+'			TCDT=DT*SQR((AirTC+273.15)/273.15)
+		Endif
+    
+    'to measure pressure every hour (or 30min or whatever) 61205V connects to SW_12V
+    'and one minute before before measurement time, turn sensor on
+    If TimeIntoInterval (29,30,Min) Then
+    	SW12 (1)
+    EndIf
+    If TimeIntoInterval (0,30,Min) Then 
+    	'61205V Barometric Pressure Sensor measurement BP: 
+			'conversion from mV to hPa is hPa = (mV * 0.2) + 600
+			'WIRING: RED=SW12V, WHITE=5H, GREEN=5L, BLACK&CLEAR=G
+			VoltDiff(BP,1,mv2500,5,True,0,_60Hz,0.2,600)
+			SW12 (0)
+		  'to calculate the sea-level corrected pressure use additional offset P
+		  'where P = 1013.25[1-(1-Elevation/44307.69231)^5.253283]
+		  'for kluane lake elev = 762m and P = 228.126665
+		  'met 1 off ice at elev = 2280m approx.
+			'BPSC = BP + 1013.25*(1-(1-2280/44307.69231)^5.253283)
+		EndIf	
+		
+		'TE525M Tipping Bucket Rain Gauge measurement Rain_mm:
+	  'WIRING: P2=BLACK, CLEAR&WHITE=G
+		'PulseCount(Rain_mm,1,2,2,0,0.1,0)
+		
+		'Call Data Tables and Store Data
+		CallTable(FiveMin)
+		CallTable(HalfHour)
+		CallTable(Health)
+	NextScan
+EndProg
