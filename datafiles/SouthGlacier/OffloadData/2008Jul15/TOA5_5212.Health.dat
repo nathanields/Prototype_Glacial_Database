@@ -1,0 +1,5 @@
+"TOA5","5212","CR1000","5212","CR1000.Std.10","CRD:apr08_g1ice1.CR1","16968","Health"
+"TIMESTAMP","RECORD","Batt_Volt_Max","Batt_Volt_Min","Batt_Volt_TMn","Batt_Volt_Avg","Panel_Temp_Max","Panel_Temp_TMx","Panel_Temp_Min","Panel_Temp_Avg"
+"TS","RN","Volts","Volts","Volts","Volts","Deg C","Deg C","Deg C","Deg C"
+"","","Max","Min","TMn","Avg","Max","TMx","Min","Avg"
+"2008-07-15 00:00:00",71,13.85,12.66,"2008-07-14 06:00:00",13.43,9.71,"2008-07-14 15:01:30",1.97,5.04
