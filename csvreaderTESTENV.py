@@ -1,4 +1,3 @@
-print('help me')
 def num_check(s): #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
     from dateutil.parser import parse
     try:
@@ -49,50 +48,5 @@ def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and check
                 #print(i)
                 #print("oh god finally, Im free from these mortal coils")
                 print(complete_header)
-                return (complete_header)
-                #headerFull = header_check(i,f1) #-header check is the function which will find all rows of headers and concatenate them into a single list (headerFull)              
-
-
-def row_counter(f1):
-    import csv
-    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
-        csvreader = csv.reader(dataFILE) #open file
-        rowCount = sum(1 for row in csvreader) #counts amount of rows in table for max value of insertion iterator
-        return rowCount
-
-
-
-def csv_reader():
-    import psycopg2
-    conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
-    cur = conn.cursor()
-    import csv
-    #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
-    f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
-    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
-        csvreader = csv.reader(dataFILE) #open file
-        rowCount = row_counter(f1)
-        
-
-        headerList = (next(csvreader)) #start iterator, calling header list calls next row
-        #headerFull = headerList #Stores first row
-        #headerVal = headerList[0] #stores first value in called row
-        i = 0
-        print(rowCount)        
-
-        while i != rowCount:
-            #print(headerList) #insert into sql table
-            print(i)
-            cur.execute(
-                'INSERT INTO awstest VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
-                headerList
-            )
-            conn.commit()
-            headerList = (next(csvreader))
-            i = i+1
-
-
-
-
-csv_reader()
-#csv_HeaderReader()
+                #return (complete_header)
+                              
