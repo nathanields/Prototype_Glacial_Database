@@ -20,17 +20,17 @@ def header_check(header,headerFull,i): #header_check builds the headers into a s
             s = s+1
     return headerFull
 
-def csv_reader(): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
+def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
                   #memory are concatenated and become the header (complete_header). 
     import csv
     #f1="/media/sf_ndsouza/testDATA/Julysept20145MIN1.csv"
     #f1="/media/sf_ndsouza/testDATA/July_Sept_2014_Health.csv"
-    f1="/media/sf_ndsouza/testDATA/July_Sept_2014_FiveMin.csv"
+    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
-        csvreader = csv.reader(dataFILE)
-        headerList = (next(csvreader))
-        headerFull = headerList
-        headerVal = headerList[0]
+        csvreader = csv.reader(dataFILE) #open file
+        headerList = (next(csvreader)) #start iterator//calling header list calls next row
+        headerFull = headerList #Stores first row
+        headerVal = headerList[0] #stores first value in called row
         i = 0
         while i < 10:  #amount of rows to check, change this number to check more or less rows
             if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
@@ -49,10 +49,41 @@ def csv_reader(): #csv_reader opens a csv, calls it into memory, and checks the 
                 #print("oh god finally, Im free from these mortal coils")
                 print(complete_header)
                 return (complete_header)
-                #headerFull = header_check(i,f1) #-header check is the function which will find all rows of headers and concatenate them into a single list (headerFull)
-                break                
+                #headerFull = header_check(i,f1) #-header check is the function which will find all rows of headers and concatenate them into a single list (headerFull)              
+
+
+def row_counter(f1):
+    import csv
+    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
+        csvreader = csv.reader(dataFILE) #open file
+        rowCount = sum(1 for row in csvreader) #counts amount of rows in table for max value of insertion iterator
+        return rowCount
+
+
+
+def csv_reader():
+    #import psycopg2
+    #from config import config
+    import csv
+    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
+    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
+        csvreader = csv.reader(dataFILE) #open file
+        rowCount = row_counter(f1)
+        
+
+        headerList = (next(csvreader)) #start iterator, calling header list calls next row
+        #headerFull = headerList #Stores first row
+        #headerVal = headerList[0] #stores first value in called row
+        i = 0
+        print(rowCount)        
+
+        while i < rowCount:
+            print(headerList)
+            headerList = (next(csvreader))
+            i = i+1
+
+
 
 
 csv_reader()
-
-#def sanitize_values(headerFull):
+#csv_HeaderReader()
