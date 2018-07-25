@@ -1,3 +1,4 @@
+print('help me')
 def num_check(s): #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
     from dateutil.parser import parse
     try:
