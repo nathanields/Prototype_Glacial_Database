@@ -62,10 +62,12 @@ def row_counter(f1):
 
 
 def csv_reader():
-    #import psycopg2
-    #from config import config
+    import psycopg2
+    conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
+    cur = conn.cursor()
     import csv
-    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
+    #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
+    f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
@@ -77,8 +79,14 @@ def csv_reader():
         i = 0
         print(rowCount)        
 
-        while i < rowCount:
-            print(headerList)
+        while i != rowCount:
+            #print(headerList) #insert into sql table
+            print(i)
+            cur.execute(
+                'INSERT INTO awstest VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                headerList
+            )
+            conn.commit()
             headerList = (next(csvreader))
             i = i+1
 
