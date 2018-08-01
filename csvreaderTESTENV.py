@@ -53,6 +53,9 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
 def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
                   #memory are concatenated and become the header (completeHeader). 
     import csv
+    import psycopg2
+    conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
+    cur = conn.cursor()
     #f1="/media/sf_ndsouza/testDATA/Julysept20145MIN1.csv"
     #f1="/media/sf_ndsouza/testDATA/July_Sept_2014_Health.csv"
     f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_HalfHour.csv"
@@ -82,8 +85,14 @@ def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and check
                 formatedHeader = header_format(dataRow,completeHeader)
                 print(i)
                 print(formatedHeader)
+                print(''.join(formatedHeader))
+                cur.execute("""
+                CREATE TABLE awstest(
+                formatedHeader
+                )
+                """)
+                conn.commit()
                 break
 
-                #return (completeHeader)
-                              
+
 csv_HeaderReader()

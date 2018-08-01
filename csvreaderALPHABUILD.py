@@ -68,15 +68,15 @@ def csv_reader():
     import csv
     #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
     f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
-    completeHeader = csv_HeaderReader()
+    #completeHeader = csv_HeaderReader()
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
-        cur.execute("""
-        CREATE TABLE #tablenamevariable(
-            
-        )
-        """)
+        #cur.execute("""
+        #CREATE TABLE tablenamevariable(
+        #    
+        #)
+        #""")
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
         #headerFull = headerList #Stores first row
         #headerVal = headerList[0] #stores first value in called row
@@ -98,4 +98,4 @@ def csv_reader():
 
 
 #csv_reader()
-csv_HeaderReader()
+csv_reader()
