@@ -24,7 +24,7 @@ def header_check(header,headerFull,i): #header_check builds the headers into a s
 def header_format(dataIndiv,completeHeader): #header_format builds the headers into a list to be parseble into the sql server, dataIndiv is the list of values one below the header which is used to set the type
     from dateutil.parser import parse
     s = 0
-    dataType = 'varchar(80)''975ec140ecc013a61b0b3353d95d2f9f1fb76f09'
+    dataType = 'varchar(80)'
     while s < len(dataIndiv):
         try:
             float(dataIndiv[s])
