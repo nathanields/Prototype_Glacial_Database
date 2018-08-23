@@ -1,4 +1,4 @@
-'975ec140ecc013a61b0b3353d95d2f9f1fb76f09'
+
 def num_check(s): #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
     from dateutil.parser import parse
     try:
@@ -9,7 +9,7 @@ def num_check(s): #num_check trys the value 's' to see if it's a float (number) 
             parse(s)
             return True
         except ValueError:
-            return False975ec140ecc013a61b0b3353d95d2f9f1fb76f09
+            return False
 
 def header_check(header,headerFull,i): #header_check builds the headers into a single list 
     s = 0
@@ -24,7 +24,7 @@ def header_check(header,headerFull,i): #header_check builds the headers into a s
 def header_format(dataIndiv,completeHeader): #header_format builds the headers into a list to be parseble into the sql server, dataIndiv is the list of values one below the header which is used to set the type
     from dateutil.parser import parse
     s = 0
-    dataType = 'varchar(80)'
+    dataType = 'varchar(80)''975ec140ecc013a61b0b3353d95d2f9f1fb76f09'
     while s < len(dataIndiv):
         try:
             float(dataIndiv[s])
