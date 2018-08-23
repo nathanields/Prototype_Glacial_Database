@@ -106,8 +106,11 @@ def column_creator(length, headerList):
         s = s+1
     row = ', '.join(row)
     print(row)
-    insertRow = 'INSERT INTO awstest VALUES (%s)', row
-column_creator(5,'hay')
+    insertRow = 'INSERT INTO awstest VALUES (%s),' % row
+    insertRow = insertRow % headerList
+    print(insertRow)
+    return insertRow
+column_creator(5, ['2014-07-05 10:30:00"','0','1.611','920','0'])
 
 def csv_reader():
     import psycopg2
