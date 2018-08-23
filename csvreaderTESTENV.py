@@ -1,3 +1,4 @@
+'975ec140ecc013a61b0b3353d95d2f9f1fb76f09'
 def num_check(s): #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
     from dateutil.parser import parse
     try:
@@ -8,7 +9,7 @@ def num_check(s): #num_check trys the value 's' to see if it's a float (number) 
             parse(s)
             return True
         except ValueError:
-            return False
+            return False975ec140ecc013a61b0b3353d95d2f9f1fb76f09
 
 def header_check(header,headerFull,i): #header_check builds the headers into a single list 
     s = 0
@@ -97,6 +98,16 @@ def row_counter(f1):
         rowCount = sum(1 for row in csvreader) #counts amount of rows in table for max value of insertion iterator
         return rowCount
 
+def column_creator(length, headerList):
+    s = 0
+    row = []
+    while s < length:
+        row.extend(["%s"])
+        s = s+1
+    row = ', '.join(row)
+    print(row)
+    insertRow = 'INSERT INTO awstest VALUES (%s)', row
+column_creator(5,'hay')
 
 def csv_reader():
     import psycopg2
@@ -104,19 +115,14 @@ def csv_reader():
     cur = conn.cursor()
     import csv
     #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
-    f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
-    #completeHeader = csv_HeaderReader()
+    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_HalfHour.csv"
+    #f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
-        #cur.execute("""
-        #CREATE TABLE tablenamevariable(
-        #    
-        #)
-        #""")
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
-        #headerFull = headerList #Stores first row
-        #headerVal = headerList[0] #stores first value in called row
+        listLength = len(headerList)
+        row = column_creator(listLength,headerList)
         i = 0
         print(rowCount)        
 
@@ -124,7 +130,7 @@ def csv_reader():
             #print(headerList) #insert into sql table
             print(i)
             cur.execute(
-                'INSERT INTO awstest VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                'INSERT INTO awstest VALUES (%s)',
                 headerList
             )
             conn.commit()
@@ -133,4 +139,4 @@ def csv_reader():
 
 
 
-csv_HeaderReader()
+#csv_HeaderReader()
