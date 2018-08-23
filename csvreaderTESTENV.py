@@ -14,7 +14,7 @@ def header_check(header,headerFull,i): #header_check builds the headers into a s
     s = 0
     while s < len(header):
         if i > 0:
-            headerFull[s] = headerFull[s] + '/' + header[s]
+            headerFull[s] = headerFull[s] + '_' + header[s]
             s = s+1
         else:
             s = s+1
@@ -81,18 +81,56 @@ def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and check
                 #print(i)
                 #print("oh god finally, Im free from these mortal coils")
                 dataRow = headerList
-                print(dataRow)
                 formatedHeader = header_format(dataRow,completeHeader)
-                print(i)
-                print(formatedHeader)
-                print(''.join(formatedHeader))
-                cur.execute("""
-                CREATE TABLE awstest(
-                formatedHeader
-                )
-                """)
+                heado = (''.join(formatedHeader))
+                heado = heado[:-1]
+                head = """CREATE TABLE awstest(%s)""" % heado
+                print(head)
+                cur.execute(head)
                 conn.commit()
                 break
+
+def row_counter(f1):
+    import csv
+    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
+        csvreader = csv.reader(dataFILE) #open file
+        rowCount = sum(1 for row in csvreader) #counts amount of rows in table for max value of insertion iterator
+        return rowCount
+
+
+def csv_reader():
+    import psycopg2
+    conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
+    cur = conn.cursor()
+    import csv
+    #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
+    f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
+    #completeHeader = csv_HeaderReader()
+    with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
+        csvreader = csv.reader(dataFILE) #open file
+        rowCount = row_counter(f1)
+        #cur.execute("""
+        #CREATE TABLE tablenamevariable(
+        #    
+        #)
+        #""")
+        headerList = (next(csvreader)) #start iterator, calling header list calls next row
+        #headerFull = headerList #Stores first row
+        #headerVal = headerList[0] #stores first value in called row
+        i = 0
+        print(rowCount)        
+
+        while i != rowCount:
+            #print(headerList) #insert into sql table
+            print(i)
+            cur.execute(
+                'INSERT INTO awstest VALUES ( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                headerList
+            )
+            conn.commit()
+            headerList = (next(csvreader))
+            i = i+1
+
 
 
 csv_HeaderReader()
