@@ -1,4 +1,4 @@
-RN,Name,Install Date,Pole Type,Pole Length (m),Hole Depth (mbis),Init. Height of pole above ice surface (m),Surface Type,Snow depth 1 (m),Snow depth 2 (m),Snow depth 3 (m),Removal Date,Final height of pole above ice surface (m),Final Surface type,Snow Melt (m),Ice Melt (m),Notes
+RN,Name,Install,Pole medium,Pole Length (m),Hole Depth (mbis),Init. Height of pole above ice surface (m),Surface Type,Snow depth 1 (m),Snow depth 2 (m),Snow depth 3 (m),Removal Date,Final height of pole above ice surface (m),Final Surface type,Snow Melt (m),Ice Melt (m),Notes
 1,CSI-1,16-06-2017,"3/4"" Steel",7.4,5.985,1.415,Snow,0.305,0.27,0.305,11-09-2017,5.1,Bare Ice,0.293,3.685,Tilting 11 deg (bottom) and 19 deg (top) from vertical at 097 (116-19)
 2,GPS-1,16-06-2017,"3/4"" Steel",7.37,6.01,1.36,Snow,0.2,0.18,0.23,11-09-2017,4.92,Bare Ice,0.203,3.56,Tilting 6 deg from vertical at 131 (150-19)
 3,SDAR1-RX-E,15-06-2017,"3/4"" PVC",4.55,3.05,1.5,Snow,0.48,,,08-09-2017,>4.55,Bare Ice,0.48,> 3.05,Melted out
