@@ -47,19 +47,13 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
                     dataType = 'varchar(80)'
                     completeHeader[s] = completeHeader[s] + " " + dataType + ","
                     s = s+1
-    
     return completeHeader
-        
 
-def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
+def csv_HeaderReader(f1,conn): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
                   #memory are concatenated and become the header (completeHeader). 
     import csv
     import psycopg2
-    conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
     cur = conn.cursor()
-    #f1="/media/sf_ndsouza/testDATA/Julysept20145MIN1.csv"
-    #f1="/media/sf_ndsouza/testDATA/July_Sept_2014_Health.csv"
-    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_HalfHour.csv"
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         headerList = (next(csvreader)) #start iterator//calling header list calls next row
@@ -85,12 +79,13 @@ def csv_HeaderReader(): #csv_reader opens a csv, calls it into memory, and check
                 formatedHeader = header_format(dataRow,completeHeader)
                 heado = (''.join(formatedHeader))
                 heado = heado[:-1]
-                head = """CREATE TABLE awstest(%s)""" % heado
+                head = """CREATE TABLE aws(%s)""" % heado
                 print(head)
+                print('here we go again lmao')
                 cur.execute(head)
                 conn.commit()
-                break
-
+                return i
+                
 def row_counter(f1):
     import csv
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
@@ -98,43 +93,32 @@ def row_counter(f1):
         rowCount = sum(1 for row in csvreader) #counts amount of rows in table for max value of insertion iterator
         return rowCount
 
-def column_creator(length, headerList):
-    s = 0
-    row = []
-    while s < length:
-        row.extend(["%s"])
-        s = s+1
-    row = ', '.join(row)
-    print(row)
-    insertRow = 'INSERT INTO awstest VALUES (%s),' % row
-    insertRow = insertRow % headerList
-    print(insertRow)
-    return insertRow
-column_creator(5, ['2014-07-05 10:30:00"','0','1.611','920','0'])
+
 
 def csv_reader():
     import psycopg2
     conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
     cur = conn.cursor()
     import csv
-    #f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Julysept20145MIN1.csv"
-    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_HalfHour.csv"
-    #f1='/home/ndsouza/Prototype_Glacial_Database/datafiles/July_Sept_2014_FiveMin.csv'
+    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Poles_2017/Poles_2017.csv"
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
-        listLength = len(headerList)
-        row = column_creator(listLength,headerList)
         i = 0
-        print(rowCount)        
-
+        print('haha')
+        s = csv_HeaderReader(f1,conn)
+        while i < s:
+            headerList = (next(csvreader))
+            i = i+1
+            print('wow')
         while i != rowCount:
-            #print(headerList) #insert into sql table
+            #insert into sql table
             print(i)
+            #print('INSERT INTO awstest VALUES %r' % (tuple(headerList),))
+            #headerList = ', '.join(headerList)
             cur.execute(
-                'INSERT INTO awstest VALUES (%s)',
-                headerList
+                'INSERT INTO aws VALUES %r' % (tuple(headerList),)
             )
             conn.commit()
             headerList = (next(csvreader))
@@ -142,4 +126,4 @@ def csv_reader():
 
 
 
-#csv_HeaderReader()
+csv_reader()
