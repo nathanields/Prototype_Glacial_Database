@@ -77,9 +77,11 @@ def csv_HeaderReader(f1,conn): #csv_reader opens a csv, calls it into memory, an
                 #print("oh god finally, Im free from these mortal coils")
                 dataRow = headerList
                 formatedHeader = header_format(dataRow,completeHeader)
-                heado = (''.join(formatedHeader))
+                heado = (' '.join(formatedHeader))
                 heado = heado[:-1]
-                head = """CREATE TABLE aws(%s)""" % heado
+                print(heado)
+                #head = """CREATE TABLE waws (%s)""" %heado
+                head = """CREATE TABLE waws (RN float, Name varchar(80), Install date, Pole material varchar(80), Pole Length (m) float, Hole Depth (mbis) float, Init. Height of pole above ice surface (m) float, Surface Type varchar(80), Snow depth 1 (m) float, Snow depth 2 (m) float, Snow depth 3 (m) float, Removal Date date, Final height of pole above ice surface (m) float, Final Surface type varchar(80), Snow Melt (m) float, Ice Melt (m) float, Notes varchar(80))""" 
                 print(head)
                 print('here we go again lmao')
                 cur.execute(head)
