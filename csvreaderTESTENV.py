@@ -26,6 +26,10 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
     s = 0
     dataType = 'varchar(80)'
     while s < len(dataIndiv):
+        completeHeader[s] = completeHeader[s].replace(" ","_")
+        completeHeader[s] = completeHeader[s].replace("(","_")
+        completeHeader[s] = completeHeader[s].replace(")","_")
+        completeHeader[s] = completeHeader[s].replace(".","_")
         try:
             float(dataIndiv[s])
             dataType = 'float'
@@ -44,9 +48,11 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
                     completeHeader[s] = completeHeader[s] + " " + dataType + ","
                     s = s+1
                 except ValueError:
-                    dataType = 'varchar(80)'
+                    dataType = 'text'
                     completeHeader[s] = completeHeader[s] + " " + dataType + ","
                     s = s+1
+    completeHeader = (' '.join(completeHeader))
+    completeHeader = completeHeader[:-1]
     return completeHeader
 
 def csv_HeaderReader(f1,conn): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
@@ -72,19 +78,13 @@ def csv_HeaderReader(f1,conn): #csv_reader opens a csv, calls it into memory, an
             elif num_check(headerVal) == True: #if num_check returns true, this is where the database header building function will be called and implemented. 
                                                #Once it is complete, the loop breaks and the function ends. This should actually ideally concatenate multiple
                                                #rows since it seems a lot of these files use more than one row as a header, with units and other info included
-                #print(header)
-                #print(i)
-                #print("oh god finally, Im free from these mortal coils")
                 dataRow = headerList
                 formatedHeader = header_format(dataRow,completeHeader)
-                heado = (' '.join(formatedHeader))
-                heado = heado[:-1]
-                print(heado)
-                #head = """CREATE TABLE waws (%s)""" %heado
-                head = """CREATE TABLE waws (RN float, Name varchar(80), Install date, Pole material varchar(80), Pole Length (m) float, Hole Depth (mbis) float, Init. Height of pole above ice surface (m) float, Surface Type varchar(80), Snow depth 1 (m) float, Snow depth 2 (m) float, Snow depth 3 (m) float, Removal Date date, Final height of pole above ice surface (m) float, Final Surface type varchar(80), Snow Melt (m) float, Ice Melt (m) float, Notes varchar(80))""" 
-                print(head)
-                print('here we go again lmao')
-                cur.execute(head)
+                #print(formatedHeader)
+                formatedHeader = """CREATE TABLE waws (%s)""" %formatedHeader
+                #formatedHeader = """CREATE TABLE waws (RN_float,_Name_text,_Install_date,_Pole_material_text,_Pole_Length__m__float,_Hole_Depth__mbis__float,_Init__Height_of_pole_above_ice_surface__m__float,_Surface_Type_text,_Snow_depth_1__m__float,_Snow_depth_2__m__float,_Snow_depth_3__m__float,_Removal_Date_date,_Final_height_of_pole_above_ice_surface__m__float,_Final_Surface_type_text,_Snow_Melt__m__float,_Ice_Melt__m__float,_Notes_text)"""
+                #print(formatedHeader)
+                cur.execute(formatedHeader)
                 conn.commit()
                 return i
                 
@@ -120,7 +120,7 @@ def csv_reader():
             #print('INSERT INTO awstest VALUES %r' % (tuple(headerList),))
             #headerList = ', '.join(headerList)
             cur.execute(
-                'INSERT INTO aws VALUES %r' % (tuple(headerList),)
+                'INSERT INTO waws VALUES %r' % (tuple(headerList),)
             )
             conn.commit()
             headerList = (next(csvreader))
