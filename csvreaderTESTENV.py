@@ -72,7 +72,7 @@ def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into 
         headerVal = headerList[0] #stores first dataIndiv[s] = dataIndiv[s] + " " + dataType + ","value in called row
         i = 0
 
-        if table_exist(tableName, conn)=True:
+        if table_exist(tableName, conn) == True:
             while i < 10:  #amount of rows to check, change this number to check more or less rows
                 if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
                                                 #iterates to the next row and preps the first value for checking
