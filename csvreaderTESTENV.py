@@ -137,8 +137,7 @@ def csv_reader():
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
         i = 0
         print('haha')
-        headerReturn = csv_HeaderReader(f1,conn,tableName)
-        s = headerReturn[2]
+        s = csv_HeaderReader(f1,conn,tableName)
         while i < s:
             headerList = (next(csvreader))
             i = i+1
@@ -151,7 +150,7 @@ def csv_reader():
             headerList = "'" + headerList + "'"
             print(headerList)
             cur.execute(
-                'INSERT INTO {} VALUES ({})'.format(table_name, headerList)
+                'INSERT INTO {} VALUES ({})'.format(tableName, headerList)
                 #'INSERT INTO waws VALUES (2007-05-18 23:15:00, 0, 0.48, 151.4, 0.01, 0.96, -0.086, 86.9, 86.9, 66.84)'
             )
             conn.commit()
