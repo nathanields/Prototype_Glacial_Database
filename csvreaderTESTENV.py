@@ -102,7 +102,7 @@ def csv_reader():
     conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
     cur = conn.cursor()
     import csv
-    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/Poles_2017/Poles_2017.csv"
+    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/CanadaCreek/OffloadData/2007Jul/TOA5_5211.FiveMin.csv"
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
@@ -118,7 +118,8 @@ def csv_reader():
             #insert into sql table
             print(i)
             #print('INSERT INTO awstest VALUES %r' % (tuple(headerList),))
-            #headerList = ', '.join(headerList)
+            headerList = ', '.join(headerList)
+            print(headerList)
             cur.execute(
                 'INSERT INTO waws VALUES %r' % (tuple(headerList),)
             )
