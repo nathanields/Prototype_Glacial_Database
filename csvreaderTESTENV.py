@@ -55,38 +55,63 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
     completeHeader = completeHeader[:-1]
     return completeHeader
 
-def csv_HeaderReader(f1,conn): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
+def table_exist(tableName, conn):
+    cur= conn.cursor()
+    cur.execute("select exists(select * from information_schema.tables where table_name={}").format(tableName)
+    return cur.fetchone()[0]
+
+def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
                   #memory are concatenated and become the header (completeHeader). 
     import csv
     import psycopg2
-    cur = conn.cursor()
+    cur = conn.cursor() 
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         headerList = (next(csvreader)) #start iterator//calling header list calls next row
         headerFull = headerList #Stores first row
         headerVal = headerList[0] #stores first dataIndiv[s] = dataIndiv[s] + " " + dataType + ","value in called row
         i = 0
-        while i < 10:  #amount of rows to check, change this number to check more or less rows
-            if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
-                                              #iterates to the next row and preps the first value for checking
-                header = headerList
-                completeHeader = header_check(header,headerFull,i)
-                headerList = (next(csvreader))
-                headerVal = headerList[0]
-                i = i+1
-                ##print('help! Im stuck in a while loop and cant get out!')
-            elif num_check(headerVal) == True: #if num_check returns true, this is where the database header building function will be called and implemented. 
-                                               #Once it is complete, the loop breaks and the function ends. This should actually ideally concatenate multiple
-                                               #rows since it seems a lot of these files use more than one row as a header, with units and other info included
-                dataRow = headerList
-                formatedHeader = header_format(dataRow,completeHeader)
-                #print(formatedHeader)
-                formatedHeader = """CREATE TABLE waws (%s)""" %formatedHeader
-                #formatedHeader = """CREATE TABLE waws (RN_float,_Name_text,_Install_date,_Pole_material_text,_Pole_Length__m__float,_Hole_Depth__mbis__float,_Init__Height_of_pole_above_ice_surface__m__float,_Surface_Type_text,_Snow_depth_1__m__float,_Snow_depth_2__m__float,_Snow_depth_3__m__float,_Removal_Date_date,_Final_height_of_pole_above_ice_surface__m__float,_Final_Surface_type_text,_Snow_Melt__m__float,_Ice_Melt__m__float,_Notes_text)"""
-                #print(formatedHeader)
-                cur.execute(formatedHeader)
-                conn.commit()
-                return i
+
+        if table_exist(tableName, conn)=True:
+            while i < 10:  #amount of rows to check, change this number to check more or less rows
+                if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
+                                                #iterates to the next row and preps the first value for checking
+                    header = headerList
+                    completeHeader = header_check(header,headerFull,i)
+                    headerList = (next(csvreader))
+                    headerVal = headerList[0]
+                    i = i+1
+                    ##print('help! Im stuck in a while loop and cant get out!')
+                elif num_check(headerVal) == True: #if num_check returns true, this is where the database header building function will be called and implemented. 
+                                                #Once it is complete, the loop breaks and the function ends. This should actually ideally concatenate multiple
+                                                #rows since it seems a lot of these files use more than one row as a header, with units and other info included
+                    dataRow = headerList
+                    formatedHeader = header_format(dataRow,completeHeader)
+                    print(formatedHeader)
+                    return i
+
+        else:
+            while i < 10:  #amount of rows to check, change this number to check more or less rows
+                if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
+                                                #iterates to the next row and preps the first value for checking
+                    header = headerList
+                    completeHeader = header_check(header,headerFull,i)
+                    headerList = (next(csvreader))
+                    headerVal = headerList[0]
+                    i = i+1
+                    ##print('help! Im stuck in a while loop and cant get out!')
+                elif num_check(headerVal) == True: #if num_check returns true, this is where the database header building function will be called and implemented. 
+                                                #Once it is complete, the loop breaks and the function ends. This should actually ideally concatenate multiple
+                                                #rows since it seems a lot of these files use more than one row as a header, with units and other info included
+                    dataRow = headerList
+                    formatedHeader = header_format(dataRow,completeHeader)
+                    print(formatedHeader)
+                    formatedHeader = """CREATE TABLE Canada_Creek_AWS (%s)""" %formatedHeader
+                    #formatedHeader = """CREATE TABLE waws (RN_float,_Name_text,_Install_date,_Pole_material_text,_Pole_Length__m__float,_Hole_Depth__mbis__float,_Init__Height_of_pole_above_ice_surface__m__float,_Surface_Type_text,_Snow_depth_1__m__float,_Snow_depth_2__m__float,_Snow_depth_3__m__float,_Removal_Date_date,_Final_height_of_pole_above_ice_surface__m__float,_Final_Surface_type_text,_Snow_Melt__m__float,_Ice_Melt__m__float,_Notes_text)"""
+                    #print(formatedHeader)
+                    cur.execute(formatedHeader)
+                    conn.commit()
+                    return i
                 
 def row_counter(f1):
     import csv
@@ -102,14 +127,18 @@ def csv_reader():
     conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
     cur = conn.cursor()
     import csv
-    f1="/home/ndsouza/Prototype_Glacial_Database/datafiles/CanadaCreek/OffloadData/2007Jul/TOA5_5211.FiveMin.csv"
+
+    f1 = input('Enter File path') #"/home/ndsouza/Prototype_Glacial_Database/datafiles/CanadaCreek/OffloadData/2007Jul/TOA5_52111.FiveMin.csv"
+    tableName = ('Enter Table name')
+
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
         rowCount = row_counter(f1)
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
         i = 0
         print('haha')
-        s = csv_HeaderReader(f1,conn)
+        headerReturn = csv_HeaderReader(f1,conn,tableName)
+        s = headerReturn[2]
         while i < s:
             headerList = (next(csvreader))
             i = i+1
@@ -118,10 +147,12 @@ def csv_reader():
             #insert into sql table
             print(i)
             #print('INSERT INTO awstest VALUES %r' % (tuple(headerList),))
-            headerList = ', '.join(headerList)
+            headerList = "', '".join(headerList)
+            headerList = "'" + headerList + "'"
             print(headerList)
             cur.execute(
-                'INSERT INTO waws VALUES %r' % (tuple(headerList),)
+                'INSERT INTO {} VALUES ({})'.format(table_name, headerList)
+                #'INSERT INTO waws VALUES (2007-05-18 23:15:00, 0, 0.48, 151.4, 0.01, 0.96, -0.086, 86.9, 86.9, 66.84)'
             )
             conn.commit()
             headerList = (next(csvreader))
