@@ -56,9 +56,19 @@ def header_format(dataIndiv,completeHeader): #header_format builds the headers i
     return completeHeader
 
 def table_exist(tableName, conn):
-    cur= conn.cursor()
-    cur.execute("select exists(select * from information_schema.tables where table_name={}").format(tableName)
-    return cur.fetchone()[0]
+    cur = conn.cursor()
+    
+    exist = """select exists(select * from information_schema.tables where table_name = '%s')""" %tableName
+    print(exist)
+    try:
+        cur.execute(exist)
+        exists = cur.fetchone()[0]
+        print('true')
+        return True
+    except ValueError:
+        print('false')
+        return False
+
 
 def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into memory, and checks the first 10 rows to see if data is there. If it is data, all previous rows stored to
                   #memory are concatenated and become the header (completeHeader). 
@@ -87,7 +97,7 @@ def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into 
                                                 #rows since it seems a lot of these files use more than one row as a header, with units and other info included
                     dataRow = headerList
                     formatedHeader = header_format(dataRow,completeHeader)
-                    print(formatedHeader)
+                    print('I am not creating a table')
                     return i
 
         else:
@@ -106,7 +116,7 @@ def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into 
                     dataRow = headerList
                     formatedHeader = header_format(dataRow,completeHeader)
                     print(formatedHeader)
-                    formatedHeader = """CREATE TABLE Canada_Creek_AWS (%s)""" %formatedHeader
+                    formatedHeader = """CREATE TABLE {} ({})""".format(tableName, formatedHeader)
                     #formatedHeader = """CREATE TABLE waws (RN_float,_Name_text,_Install_date,_Pole_material_text,_Pole_Length__m__float,_Hole_Depth__mbis__float,_Init__Height_of_pole_above_ice_surface__m__float,_Surface_Type_text,_Snow_depth_1__m__float,_Snow_depth_2__m__float,_Snow_depth_3__m__float,_Removal_Date_date,_Final_height_of_pole_above_ice_surface__m__float,_Final_Surface_type_text,_Snow_Melt__m__float,_Ice_Melt__m__float,_Notes_text)"""
                     #print(formatedHeader)
                     cur.execute(formatedHeader)
@@ -128,8 +138,8 @@ def csv_reader():
     cur = conn.cursor()
     import csv
 
-    f1 = input('Enter File path') #"/home/ndsouza/Prototype_Glacial_Database/datafiles/CanadaCreek/OffloadData/2007Jul/TOA5_52111.FiveMin.csv"
-    tableName = ('Enter Table name')
+    f1 = input('Enter File path:') #"/home/ndsouza/Prototype_Glacial_Database/datafiles/CanadaCreek/OffloadData/2007Jul/TOA5_52111.FiveMin.csv"
+    tableName = input('Enter Table name:')
 
     with open(f1, 'rt') as dataFILE: #opens file and sets up reader and iterator
         csvreader = csv.reader(dataFILE) #open file
@@ -156,6 +166,7 @@ def csv_reader():
             conn.commit()
             headerList = (next(csvreader))
             i = i+1
+        print("File loading complete, disconnecting from database")
 
 
 
