@@ -64,7 +64,8 @@ def table_exist(tableName, conn):
         cur.execute(exist)
         exists = cur.fetchone()[0]
         print('true')
-        return True
+        print(exists)
+        return exists
     except ValueError:
         print('false')
         return False
@@ -100,7 +101,7 @@ def csv_HeaderReader(f1,conn,tableName): #csv_reader opens a csv, calls it into 
                     print('I am not creating a table')
                     return i
 
-        else:
+        elif table_exist(tableName, conn) == False:
             while i < 10:  #amount of rows to check, change this number to check more or less rows
                 if num_check(headerVal) == False: #calls num_check (see above function). If this row is not data, function saves it (incase it is the header), then
                                                 #iterates to the next row and preps the first value for checking
@@ -146,19 +147,19 @@ def csv_reader():
         rowCount = row_counter(f1)
         headerList = (next(csvreader)) #start iterator, calling header list calls next row
         i = 0
-        print('haha')
+        #print('haha')
         s = csv_HeaderReader(f1,conn,tableName)
         while i < s:
             headerList = (next(csvreader))
             i = i+1
-            print('wow')
+            #print('wow')
         while i != rowCount:
             #insert into sql table
             print(i)
             #print('INSERT INTO awstest VALUES %r' % (tuple(headerList),))
             headerList = "', '".join(headerList)
             headerList = "'" + headerList + "'"
-            print(headerList)
+            #print(headerList)
             cur.execute(
                 'INSERT INTO {} VALUES ({})'.format(tableName, headerList)
                 #'INSERT INTO waws VALUES (2007-05-18 23:15:00, 0, 0.48, 151.4, 0.01, 0.96, -0.086, 86.9, 86.9, 66.84)'
@@ -167,6 +168,7 @@ def csv_reader():
             headerList = (next(csvreader))
             i = i+1
         print("File loading complete, disconnecting from database")
+            
 
 
 
