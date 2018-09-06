@@ -1,6 +1,12 @@
+##main functionality for database processing 
 
-def num_check(s):                                    #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
-    from dateutil.parser import parse
+##notes: x_y=function xY=variable
+
+
+
+def num_check(s):                                   #num_check trys the value 's' to see if it's a float (number) or a date. If it is, it returns True, if not, returns false
+                                                    #uses dateutil package to check for the presence of a date in the row (indicating header is no longer a part of the row)
+    from dateutil.parser import parse               
 
     try:
         float(s)
@@ -15,6 +21,7 @@ def num_check(s):                                    #num_check trys the value '
             return False
 
 def header_check(header,headerFull,i):              #header_check builds the headers into a single list 
+                                                    #concatenates each row based on mox header depth in the matrix (i)
     s = 0
 
     while s < len(header):
@@ -33,7 +40,7 @@ def header_format(dataIndiv,completeHeader):        #header_format builds the he
     s = 0
     dataType = 'varchar(80)'
 
-    while s < len(dataIndiv):
+    while s < len(dataIndiv):                       #data validation and cleansing is needed as the headers are often filled with random characters that are useless to the database
         completeHeader[s] = completeHeader[s].replace(" ","_")
         completeHeader[s] = completeHeader[s].replace("(","_")
         completeHeader[s] = completeHeader[s].replace(")","_")
