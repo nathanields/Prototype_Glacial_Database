@@ -192,10 +192,11 @@ def csv_reader():                                   #heavy lifter, calls other f
         while i < rowCount:                         #when all conditions are met, this is where each row is inserted
             print(i)
             
-            headerList = "', '".join(headerList)
-            headerList = "'" + headerList + "'"
+            headerString = "', '".join(headerList)
+            headerString = "'" + headerString + "'"
             
             cur.execute(                            #wrapping of all rows occurs here
+
                 'INSERT INTO {} VALUES ({})'.format(tableName, headerList)
             )
             conn.commit()                           #final commit locks the string into the database
