@@ -8,13 +8,15 @@ headerString = "%s," * len(headerList)
 
 headerString = headerString[:-1]
 
-#print(headerString)
+print(headerString)
 #headerString = "'" + headerString + "'"
 
-final = 'INSERT INTO values VALUES (%s);' %headerString 
+final = 'INSERT INTO wow VALUES (%s)' %headerString 
 
 print(final)
 print(final, headerList)
+wow = final, headerList
+print(wow)
 
 cur.execute(final, headerList)
 conn.commit

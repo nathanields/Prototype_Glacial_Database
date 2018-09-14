@@ -45,6 +45,7 @@ def header_format(dataIndiv,completeHeader):        #header_format builds the he
         completeHeader[s] = completeHeader[s].replace("(","_")
         completeHeader[s] = completeHeader[s].replace(")","_")
         completeHeader[s] = completeHeader[s].replace(".","_")
+        completeHeader[s] = completeHeader[s].replace("/","_")
 
         try:
             float(dataIndiv[s])
@@ -197,7 +198,7 @@ def csv_reader():                                   #heavy lifter, calls other f
             
             cur.execute(                            #wrapping of all rows occurs here
 
-                'INSERT INTO {} VALUES ({})'.format(tableName, headerList)
+                'INSERT INTO {} VALUES ({})'.format(tableName, headerString)
             )
             conn.commit()                           #final commit locks the string into the database
             headerList = (next(csvreader))
