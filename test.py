@@ -1,4 +1,7 @@
 import psycopg2
+import math
+x=float('nan')
+math.isnan(x)
 
 conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
 cur = conn.cursor()
