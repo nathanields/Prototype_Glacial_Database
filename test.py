@@ -1,26 +1,26 @@
 import psycopg2
 import math
 x=float('nan')
-math.isnan(x)
+print(math.isnan(x))
 
-conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
-cur = conn.cursor()
+# conn = psycopg2.connect("host=localhost dbname=testDB user=ndsouza password=glacier1")
+# cur = conn.cursor()
 
-headerList = ['aa/aa','bb(bb','cc)cc','d.ddd']
-headerString = "%s," * len(headerList)
+# headerList = ['aa/aa','bb(bb','cc)cc','d.ddd']
+# headerString = "%s," * len(headerList)
 
-headerString = headerString[:-1]
+# headerString = headerString[:-1]
 
-print(headerString)
-#headerString = "'" + headerString + "'"
+# print(headerString)
+# #headerString = "'" + headerString + "'"
 
-final = 'INSERT INTO wow VALUES (%s)' %headerString 
+# final = 'INSERT INTO wow VALUES (%s)' %headerString 
 
-print(final)
-print(final, headerList)
-wow = final, headerList
-print(wow)
+# print(final)
+# print(final, headerList)
+# wow = final, headerList
+# print(wow)
 
-cur.execute(final, headerList)
-conn.commit
-print('complete')
+# cur.execute(final, headerList)
+# conn.commit
+# print('complete')
